@@ -1,0 +1,8 @@
+create_table("lyrics") {
+	t.Column("id", "uuid", { primary: true })
+	t.Column("title", "string", {})
+	t.Column("lyric", "string", {})
+	t.Column("user_id", "uuid", {})
+	t.ForeignKey("user_id", {"users": ["id"]}, {})
+	t.Timestamps()
+}

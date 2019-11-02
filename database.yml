@@ -1,7 +1,7 @@
 ---
 development:
   dialect: postgres
-  database: api_development
+  database: mustard_dev
   user: postgres
   password: psqlpass
   host: 127.0.0.1
