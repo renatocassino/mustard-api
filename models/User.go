@@ -2,16 +2,26 @@ package models
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
-	"time"
 )
 
 type User struct {
-    ID uuid.UUID `json:"id" db:"id"`
-    CreatedAt time.Time `json:"created_at" db:"created_at"`
-    UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	ID            uuid.UUID `json:"id" db:"id"`
+	GoogleID      string    `json:"googleId" db:"google_id"`
+	Email         string    `json:"email" db:"email"`
+	EmailVerified bool      `json:"emailVerified" db:"email_verified"`
+	Name          string    `json:"name" db:"name"`
+	GivenName     string    `json:"givenName" db:"given_name"`
+	FamilyName    string    `json:"familyName" db:"family_name"`
+	Picture       string    `json:"picture" db:"picture"`
+	Locale        string    `json:"locale" db:"locale"`
+	Lyrics        []Lyric   `json:"lyrics,omitempty" has_many:"lyrics"`
+	CreatedAt     time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
 }
 
 // String is not required by pop and may be deleted
