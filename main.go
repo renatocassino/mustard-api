@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"api/actions"
+	"github.com/tacnoman/mustard-api/actions"
 )
 
 // main is the starting point for your Buffalo application.
