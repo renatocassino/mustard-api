@@ -59,6 +59,11 @@ func App() *buffalo.App {
 		app.Use(popmw.Transaction(models.DB))
 
 		app.GET("/", HomeHandler)
+		l := LyricsResource{}
+		app.GET("/api/v1/lyrics", l.List)
+		app.GET("/api/v1/lyrics/{lyric_id}", l.Show)
+		app.PUT("/api/v1/lyrics/{lyric_id}", l.Update)
+		app.POST("/api/v1/lyrics", l.Create)
 		app.GET("/api/v1/rhymes/{language}/{word}", RhymesHandler)
 	}
 

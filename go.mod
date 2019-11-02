@@ -1,4 +1,4 @@
-module api
+module mustard-api
 
 go 1.13
 

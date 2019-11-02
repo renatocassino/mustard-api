@@ -26,6 +26,10 @@ type LyricsResource struct {
 	buffalo.Resource
 }
 
+type LyricsListDTO struct {
+	data models.Lyrics `json:"data"`
+}
+
 // List gets all Lyrics. This function is mapped to the path
 // GET /lyrics
 func (v LyricsResource) List(c buffalo.Context) error {
@@ -49,7 +53,7 @@ func (v LyricsResource) List(c buffalo.Context) error {
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.Auto(c, lyrics))
+	return c.Render(200, r.JSON(lyrics))
 }
 
 // Show gets the data for one Lyric. This function is mapped to
@@ -69,7 +73,7 @@ func (v LyricsResource) Show(c buffalo.Context) error {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.Auto(c, lyric))
+	return c.Render(200, r.JSON(lyric))
 }
 
 // Create adds a Lyric to the DB. This function is mapped to the
