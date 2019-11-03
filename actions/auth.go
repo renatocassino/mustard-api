@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	"github.com/tacnoman/mustard-api/core"
 	"github.com/tacnoman/mustard-api/dtos"
 	"github.com/tacnoman/mustard-api/models"
 	"golang.org/x/oauth2"
@@ -64,5 +66,9 @@ func AuthCallbackHandler(c echo.Context) error {
 	user := models.User{}
 	user.InsertOrUpdate(&authDTO)
 
-	return c.JSON(200, user)
+	mySigningKey := core.GetEnv("JWT_TOKEN", "secret")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, user)
+	tokenString, _ := token.SignedString([]byte(mySigningKey))
+
+	return c.JSON(200, map[string]string{"token": tokenString})
 }

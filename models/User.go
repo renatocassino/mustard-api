@@ -2,8 +2,11 @@ package models
 
 import (
 	"encoding/json"
+	"net/http"
+	"strings"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/tacnoman/mustard-api/core"
@@ -21,9 +24,10 @@ type User struct {
 	FamilyName    string    `json:"familyName" bson:"familyName"`
 	Picture       string    `json:"picture"`
 	Locale        string    `json:"locale"`
-	Lyrics        []Lyric   `json:"lyrics,omitempty"`
+	Lyrics        []Lyric   `json:"lyrics,omitempty" bson:"-"`
 	CreatedAt     time.Time `json:"created_at" bson:"createdAt"`
 	UpdatedAt     time.Time `json:"updated_at" bson:"updatedAt"`
+	jwt.StandardClaims
 }
 
 func getUserCollection() *mgo.Collection {
@@ -54,6 +58,8 @@ func (u *User) SetDataByGoogleDTO(auth *dtos.GoogleAuthDTO) {
 	u.FamilyName = auth.FamilyName
 	u.Picture = auth.Picture
 	u.Locale = auth.Locale
+	u.CreatedAt = time.Now()
+	u.UpdatedAt = time.Now()
 }
 
 func (u User) FindByGoogleID(id string) *User {
@@ -73,4 +79,15 @@ func (u *User) InsertOrUpdate(auth *dtos.GoogleAuthDTO) {
 
 	u.ID = core.GenUUIDv4()
 	getUserCollection().Insert(&u)
+}
+
+func (u User) LoggedUser(r *http.Request) User {
+	tokenstring := strings.Replace(r.Header.Get("Authorization"), "Bearer ", "", 1)
+
+	user := User{}
+	jwt.ParseWithClaims(tokenstring, &user, func(token *jwt.Token) (interface{}, error) {
+		return []byte("secret"), nil
+	})
+
+	return user
 }
