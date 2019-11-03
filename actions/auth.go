@@ -6,8 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/pop"
+	"github.com/labstack/echo"
 	"github.com/tacnoman/mustard-api/dtos"
 	"github.com/tacnoman/mustard-api/models"
 	"golang.org/x/oauth2"
@@ -30,45 +29,40 @@ var (
 
 // AuthHandler is a default handler to serve up
 // a home page.
-func AuthHandler(c buffalo.Context) error {
+func AuthHandler(c echo.Context) error {
 	url := googleOauthConfig.AuthCodeURL("randomstate")
 
 	return c.Redirect(302, url)
 }
 
-// AuthCallbackHandler is a default handler to serve up
-// a home page.
-func AuthCallbackHandler(c buffalo.Context) error {
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return fmt.Errorf("no transaction found")
-	}
-
-	accessToken, err := googleOauthConfig.Exchange(oauth2.NoContext, c.Param("code"))
+// AuthCallbackHandler is
+func AuthCallbackHandler(c echo.Context) error {
+	accessToken, err := googleOauthConfig.Exchange(oauth2.NoContext, c.QueryParam("code"))
 	if err != nil {
-		return c.Render(500, r.JSON(err))
+		fmt.Println("Caanot get access token")
+		fmt.Println(err.Error())
+		return c.JSON(500, err)
 	}
 
 	fmt.Println(accessToken)
 	resp, err := http.Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v1/userinfo?access_token=%s", accessToken.AccessToken))
 	if err != nil {
 		fmt.Println(err.Error())
-		return c.Render(500, r.JSON(err))
+		return c.JSON(500, err)
 	}
 
 	defer resp.Body.Close()
 	content, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		return c.Render(500, r.Plain(err.Error()))
+		return c.JSON(500, err)
 	}
 
 	authDTO := dtos.GoogleAuthDTO{}
 	json.Unmarshal(content, &authDTO)
 
 	user := models.User{}
-	user.InsertOrUpdate(&authDTO, tx)
+	user.InsertOrUpdate(&authDTO)
 
-	return c.Render(200, r.JSON(user))
+	return c.JSON(200, user)
 }

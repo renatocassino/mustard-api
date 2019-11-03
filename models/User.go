@@ -2,29 +2,32 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"time"
 
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
-	"github.com/gofrs/uuid"
+	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
+	"github.com/tacnoman/mustard-api/core"
 	"github.com/tacnoman/mustard-api/dtos"
+	"github.com/tacnoman/mustard-api/storage"
 )
 
 type User struct {
-	ID            uuid.UUID `json:"id" db:"id"`
-	GoogleID      string    `json:"googleId" db:"google_id"`
-	Email         string    `json:"email" db:"email"`
-	EmailVerified bool      `json:"emailVerified" db:"email_verified"`
-	Name          string    `json:"name" db:"name"`
-	GivenName     string    `json:"givenName" db:"given_name"`
-	FamilyName    string    `json:"familyName" db:"family_name"`
-	Picture       string    `json:"picture" db:"picture"`
-	Locale        string    `json:"locale" db:"locale"`
-	Lyrics        []Lyric   `json:"lyrics,omitempty" has_many:"lyrics"`
-	CreatedAt     time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
+	ID            string    `json:"id" bson:"_id"`
+	GoogleID      string    `json:"googleId" bson:"googleID"`
+	Email         string    `json:"email"`
+	EmailVerified bool      `json:"emailVerified" bson:"emailVerified"`
+	Name          string    `json:"name"`
+	GivenName     string    `json:"givenName" bson:"givenName"`
+	FamilyName    string    `json:"familyName" bson:"familyName"`
+	Picture       string    `json:"picture"`
+	Locale        string    `json:"locale"`
+	Lyrics        []Lyric   `json:"lyrics,omitempty"`
+	CreatedAt     time.Time `json:"created_at" bson:"createdAt"`
+	UpdatedAt     time.Time `json:"updated_at" bson:"updatedAt"`
+}
+
+func getUserCollection() *mgo.Collection {
+	return storage.Db().C("users")
 }
 
 // String is not required by pop and may be deleted
@@ -42,24 +45,6 @@ func (u Users) String() string {
 	return string(ju)
 }
 
-// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
-func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
 func (u *User) SetDataByGoogleDTO(auth *dtos.GoogleAuthDTO) {
 	u.GoogleID = auth.ID
 	u.Email = auth.Email
@@ -71,29 +56,21 @@ func (u *User) SetDataByGoogleDTO(auth *dtos.GoogleAuthDTO) {
 	u.Locale = auth.Locale
 }
 
-func (u *User) InsertOrUpdate(auth *dtos.GoogleAuthDTO, tx *pop.Connection) {
-	err := tx.Where("google_id = ?", auth.ID).First(&u)
-	if err != nil {
-		fmt.Println("****PANIC*******")
-		log.Panic(err)
-	}
-	isEdit := u.GoogleID != ""
+func (u User) FindByGoogleID(id string) *User {
+	getUserCollection().Find(bson.M{"googleID": id}).One(&u)
+	return &u
+}
 
+func (u *User) InsertOrUpdate(auth *dtos.GoogleAuthDTO) {
+	existUser := User{}.FindByGoogleID(auth.ID)
 	u.SetDataByGoogleDTO(auth)
-	fmt.Println("*********************")
 
-	if isEdit {
-		_, err := tx.ValidateAndUpdate(u)
-		if err != nil {
-			fmt.Println("PANIC HERE *******")
-			log.Panic(err)
-		}
+	if existUser.ID != "" {
+		u.ID = existUser.ID
+		getUserCollection().Update(bson.M{"googleID": u.GoogleID}, u)
 		return
 	}
 
-	_, err = tx.ValidateAndSave(u)
-	if err != nil {
-		fmt.Println("PANIC HERE *******")
-		log.Panic(err)
-	}
+	u.ID = core.GenUUIDv4()
+	getUserCollection().Insert(&u)
 }

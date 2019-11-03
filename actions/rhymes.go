@@ -9,8 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/go-martini/martini"
-	"github.com/martini-contrib/render"
+	"github.com/labstack/echo"
 )
 
 var words = []string{}
@@ -39,7 +38,7 @@ func min(a, b int) int {
 	return b
 }
 
-func RhymesHandler(params martini.Params, req *http.Request, r render.Render) {
+func RhymesHandler(c echo.Context) error {
 	if len(words) == 0 {
 		file, err := ioutil.ReadFile("pt-br.txt")
 		if err != nil {
@@ -49,21 +48,17 @@ func RhymesHandler(params martini.Params, req *http.Request, r render.Render) {
 		words = strings.Split(string(file), "\n")
 	}
 
-	qs := req.URL.Query()
-	page, err := strconv.Atoi(qs.Get("page"))
+	page, err := strconv.Atoi(c.QueryParam("page"))
 	if err != nil {
 		page = 1
 	}
 
-	limit, err := strconv.Atoi(qs.Get("limit"))
+	limit, err := strconv.Atoi(c.QueryParam("limit"))
 	if err != nil {
 		limit = 30
 	}
 
-	fmt.Println(limit)
-	fmt.Println(page)
-
-	word := params["word"]
+	word := c.Param("word")
 	part := word[len(word)-3:]
 
 	rhymes := []string{}
@@ -75,7 +70,7 @@ func RhymesHandler(params martini.Params, req *http.Request, r render.Render) {
 
 	offset := (page - 1) * limit
 
-	language := params["language"]
+	language := c.Param("language")
 	total := len(rhymes)
 
 	dto := RhymesDTO{
@@ -108,5 +103,5 @@ func RhymesHandler(params martini.Params, req *http.Request, r render.Render) {
 	self := fmt.Sprintf("/api/v1/rhymes/%s/%s?page=%d&limit=%d", language, word, page, limit)
 	dto.Links.Self = &self
 
-	r.JSON(200, dto)
+	return c.JSON(http.StatusOK, dto)
 }

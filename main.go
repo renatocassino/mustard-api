@@ -1,18 +1,24 @@
 package main
 
 import (
-	"github.com/go-martini/martini"
-	"github.com/martini-contrib/render"
+	"github.com/labstack/echo"
 	"github.com/tacnoman/mustard-api/actions"
 )
 
 func main() {
-	m := martini.Classic()
-	m.Use(render.Renderer())
+	e := echo.New()
+	e.GET("/api/v1/rhymes/:language/:word", actions.RhymesHandler)
+	e.GET("/auth", actions.AuthHandler)
+	e.GET("/auth/callback", actions.AuthCallbackHandler)
 
-	m.Get("/api/v1/lyrics", actions.LyricList)
-	m.Get("/api/v1/rhymes/:language/:word", actions.RhymesHandler)
-	m.Run()
+	e.Logger.Fatal(e.Start(":8000"))
+
+	// m := martini.Classic()
+	// m.Use(render.Renderer())
+
+	// m.Get("/api/v1/lyrics", actions.LyricList)
+	// m.Get("/api/v1/rhymes/:language/:word", actions.RhymesHandler)
+	// m.Run()
 }
 
 /*
