@@ -1,34 +1,75 @@
 package actions
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
-	"log"
+	"net/http"
 
 	"github.com/gobuffalo/buffalo"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
 
+var (
+	googleOauthConfig = &oauth2.Config{
+		RedirectURL:  "http://localhost:8000/auth/callback",
+		ClientID:     "831276509280-m7ckgviuile76hutdgqibe7g9ll2hhh6.apps.googleusercontent.com",
+		ClientSecret: "OT4qa5gyAHDPX-nXF3IQ307A",
+		Scopes: []string{
+			"https://www.googleapis.com/auth/plus.me",
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+		},
+		Endpoint: google.Endpoint,
+	}
+)
+
+type GoogleAuthDTO struct {
+	ID            string `json:"id"`
+	Email         string `json:"email"`
+	VerifiedEmail bool   `json:"verified_email"`
+	Name          string `json:"name"`
+	GivenName     string `json:"given_name"`
+	FamilyName    string `json:"family_name"`
+	Picture       string `json:"picture"`
+	Locale        string `json:"locale"`
+}
+
 // AuthHandler is a default handler to serve up
 // a home page.
 func AuthHandler(c buffalo.Context) error {
-	data, err := ioutil.ReadFile("./config/google.json")
-	if err != nil {
-		log.Fatal(err)
-	}
+	url := googleOauthConfig.AuthCodeURL("randomstate")
 
-	conf, err := google.JWTConfigFromJSON(data, "https://www.googleapis.com/auth/bigquery")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	client := conf.Client(oauth2.NoContext)
-	client.Get("...")
-	return c.Render(200, r.JSON(map[string]string{"message": "Welcome to Buffalo!"}))
+	return c.Redirect(302, url)
 }
 
 // AuthCallbackHandler is a default handler to serve up
 // a home page.
 func AuthCallbackHandler(c buffalo.Context) error {
-	return c.Render(200, r.JSON(map[string]string{"message": "Welcome to Buffalo!"}))
+	accessToken, err := googleOauthConfig.Exchange(oauth2.NoContext, c.Param("code"))
+	if err != nil {
+		return c.Render(500, r.JSON(err))
+	}
+
+	fmt.Println(accessToken)
+	resp, err := http.Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v1/userinfo?access_token=%s", accessToken.AccessToken))
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.Render(500, r.JSON(err))
+	}
+
+	defer resp.Body.Close()
+	content, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return c.Render(500, r.Plain(err.Error()))
+	}
+
+	authDTO := GoogleAuthDTO{}
+	json.Unmarshal(content, &authDTO)
+
+	fmt.Println(authDTO.Name)
+
+	return c.Render(200, r.Plain("Works like a charm"))
 }

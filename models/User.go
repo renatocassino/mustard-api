@@ -56,3 +56,7 @@ func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
+
+// func (u *User) InsertOrUpdate(user *User) {
+
+// }
