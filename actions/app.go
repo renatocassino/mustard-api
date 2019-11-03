@@ -59,6 +59,8 @@ func App() *buffalo.App {
 		app.Use(popmw.Transaction(models.DB))
 
 		app.GET("/", HomeHandler)
+		app.GET("/api/v1/auth", AuthHandler)
+		app.GET("/api/v1/auth/callback", AuthCallbackHandler)
 		l := LyricsResource{}
 		app.GET("/api/v1/lyrics", l.List)
 		app.GET("/api/v1/lyrics/{lyric_id}", l.Show)
