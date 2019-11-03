@@ -2,11 +2,14 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"github.com/gofrs/uuid"
+	"github.com/tacnoman/mustard-api/dtos"
 )
 
 type User struct {
@@ -57,6 +60,40 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// func (u *User) InsertOrUpdate(user *User) {
+func (u *User) SetDataByGoogleDTO(auth *dtos.GoogleAuthDTO) {
+	u.GoogleID = auth.ID
+	u.Email = auth.Email
+	u.EmailVerified = auth.VerifiedEmail
+	u.Name = auth.Name
+	u.GivenName = auth.Name
+	u.FamilyName = auth.FamilyName
+	u.Picture = auth.Picture
+	u.Locale = auth.Locale
+}
 
-// }
+func (u *User) InsertOrUpdate(auth *dtos.GoogleAuthDTO, tx *pop.Connection) {
+	err := tx.Where("google_id = ?", auth.ID).First(&u)
+	if err != nil {
+		fmt.Println("****PANIC*******")
+		log.Panic(err)
+	}
+	isEdit := u.GoogleID != ""
+
+	u.SetDataByGoogleDTO(auth)
+	fmt.Println("*********************")
+
+	if isEdit {
+		_, err := tx.ValidateAndUpdate(u)
+		if err != nil {
+			fmt.Println("PANIC HERE *******")
+			log.Panic(err)
+		}
+		return
+	}
+
+	_, err = tx.ValidateAndSave(u)
+	if err != nil {
+		fmt.Println("PANIC HERE *******")
+		log.Panic(err)
+	}
+}

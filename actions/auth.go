@@ -7,6 +7,9 @@ import (
 	"net/http"
 
 	"github.com/gobuffalo/buffalo"
+	"github.com/gobuffalo/pop"
+	"github.com/tacnoman/mustard-api/dtos"
+	"github.com/tacnoman/mustard-api/models"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -25,17 +28,6 @@ var (
 	}
 )
 
-type GoogleAuthDTO struct {
-	ID            string `json:"id"`
-	Email         string `json:"email"`
-	VerifiedEmail bool   `json:"verified_email"`
-	Name          string `json:"name"`
-	GivenName     string `json:"given_name"`
-	FamilyName    string `json:"family_name"`
-	Picture       string `json:"picture"`
-	Locale        string `json:"locale"`
-}
-
 // AuthHandler is a default handler to serve up
 // a home page.
 func AuthHandler(c buffalo.Context) error {
@@ -47,6 +39,12 @@ func AuthHandler(c buffalo.Context) error {
 // AuthCallbackHandler is a default handler to serve up
 // a home page.
 func AuthCallbackHandler(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return fmt.Errorf("no transaction found")
+	}
+
 	accessToken, err := googleOauthConfig.Exchange(oauth2.NoContext, c.Param("code"))
 	if err != nil {
 		return c.Render(500, r.JSON(err))
@@ -66,10 +64,11 @@ func AuthCallbackHandler(c buffalo.Context) error {
 		return c.Render(500, r.Plain(err.Error()))
 	}
 
-	authDTO := GoogleAuthDTO{}
+	authDTO := dtos.GoogleAuthDTO{}
 	json.Unmarshal(content, &authDTO)
 
-	fmt.Println(authDTO.Name)
+	user := models.User{}
+	user.InsertOrUpdate(&authDTO, tx)
 
-	return c.Render(200, r.Plain("Works like a charm"))
+	return c.Render(200, r.JSON(user))
 }

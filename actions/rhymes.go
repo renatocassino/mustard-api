@@ -5,10 +5,12 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"net/http"
 	"strconv"
 	"strings"
 
-	"github.com/gobuffalo/buffalo"
+	"github.com/go-martini/martini"
+	"github.com/martini-contrib/render"
 )
 
 var words = []string{}
@@ -37,8 +39,7 @@ func min(a, b int) int {
 	return b
 }
 
-// RhymesHandler is a method to return rhymes
-func RhymesHandler(c buffalo.Context) error {
+func RhymesHandler(params martini.Params, req *http.Request, r render.Render) {
 	if len(words) == 0 {
 		file, err := ioutil.ReadFile("pt-br.txt")
 		if err != nil {
@@ -48,17 +49,21 @@ func RhymesHandler(c buffalo.Context) error {
 		words = strings.Split(string(file), "\n")
 	}
 
-	page, err := strconv.Atoi(c.Param("page"))
+	qs := req.URL.Query()
+	page, err := strconv.Atoi(qs.Get("page"))
 	if err != nil {
 		page = 1
 	}
 
-	limit, err := strconv.Atoi(c.Param("limit"))
+	limit, err := strconv.Atoi(qs.Get("limit"))
 	if err != nil {
 		limit = 30
 	}
 
-	word := c.Param("word")
+	fmt.Println(limit)
+	fmt.Println(page)
+
+	word := params["word"]
 	part := word[len(word)-3:]
 
 	rhymes := []string{}
@@ -70,7 +75,7 @@ func RhymesHandler(c buffalo.Context) error {
 
 	offset := (page - 1) * limit
 
-	language := c.Param("language")
+	language := params["language"]
 	total := len(rhymes)
 
 	dto := RhymesDTO{
@@ -103,5 +108,5 @@ func RhymesHandler(c buffalo.Context) error {
 	self := fmt.Sprintf("/api/v1/rhymes/%s/%s?page=%d&limit=%d", language, word, page, limit)
 	dto.Links.Self = &self
 
-	return c.Render(200, r.JSON(dto))
+	r.JSON(200, dto)
 }
