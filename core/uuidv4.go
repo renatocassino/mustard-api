@@ -3,7 +3,7 @@ package core
 import (
 	"fmt"
 
-	uuid "github.com/satori/go.uuid"
+	uuid "github.com/gofrs/uuid"
 )
 
 func GenUUIDv4() string {

@@ -45,22 +45,16 @@
 			"revisionTime": "2018-10-15T13:59:52Z"
 		},
 		{
+			"checksumSHA1": "s9C2MKOjpuvhfEIfoG6U9/DdMZ4=",
+			"path": "github.com/gofrs/uuid",
+			"revision": "abfe1881e60ef34074c1b8d8c63b42565c356ed6",
+			"revisionTime": "2019-05-10T20:42:58Z"
+		},
+		{
 			"checksumSHA1": "Qu2x1C8jPqexSoJKXzj5kyuvGXo=",
 			"path": "github.com/labstack/echo",
 			"revision": "c50c67783f730f11fb07589fd3a5b79555e5d72b",
 			"revisionTime": "2019-10-31T02:01:23Z"
-		},
-		{
-			"checksumSHA1": "czJG/+toQc75O7/tcJ+Mh+xA56k=",
-			"path": "github.com/labstack/echo/middleware",
-			"revision": "c50c67783f730f11fb07589fd3a5b79555e5d72b",
-			"revisionTime": "2019-10-31T02:01:23Z"
-		},
-		{
-			"checksumSHA1": "rN+p4nPdKiIwqMSvdOiNW0hscuA=",
-			"path": "github.com/labstack/gommon/bytes",
-			"revision": "4919956f6fb227b548f004da27c7c6b20fba499f",
-			"revisionTime": "2019-08-17T14:29:43Z"
 		},
 		{
 			"checksumSHA1": "R6DzcBLEP0BONPpsyr+11N7xh5w=",
@@ -71,12 +65,6 @@
 		{
 			"checksumSHA1": "NRXvF1Wn6fF9wcPOOv9MNSdDRaE=",
 			"path": "github.com/labstack/gommon/log",
-			"revision": "4919956f6fb227b548f004da27c7c6b20fba499f",
-			"revisionTime": "2019-08-17T14:29:43Z"
-		},
-		{
-			"checksumSHA1": "iPlSnDjuur4cK1G/7mJM/7frIm4=",
-			"path": "github.com/labstack/gommon/random",
 			"revision": "4919956f6fb227b548f004da27c7c6b20fba499f",
 			"revisionTime": "2019-08-17T14:29:43Z"
 		},
