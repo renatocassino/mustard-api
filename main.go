@@ -1,10 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/labstack/echo"
 	"github.com/tacnoman/mustard-api/actions"
+	"github.com/tacnoman/mustard-api/core"
 	"github.com/tacnoman/mustard-api/models"
 )
 
@@ -39,5 +41,5 @@ func main() {
 	e.POST("/api/v1/lyrics", actions.LyricCreateHandler, isAuthorized)
 	e.PUT("/api/v1/lyrics/:id", actions.LyricUpdateHandler, isAuthorized)
 	e.DELETE("/api/v1/lyrics/:id", actions.LyricDeleteHandler, isAuthorized)
-	e.Logger.Fatal(e.Start(":8000"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", core.GetEnv("PORT", "8000"))))
 }
