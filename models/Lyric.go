@@ -7,8 +7,6 @@ import (
 
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
 	"github.com/tacnoman/mustard-api/core"
 	"github.com/tacnoman/mustard-api/storage"
 )
@@ -70,22 +68,4 @@ func (l *Lyric) Delete(id string, user User) {
 		"userId": user.ID,
 		"_id":    id,
 	})
-}
-
-// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
-func (l *Lyric) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (l *Lyric) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (l *Lyric) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
 }
