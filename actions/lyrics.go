@@ -43,3 +43,12 @@ func LyricUpdateHandler(c echo.Context) error {
 	l.Update(id, user)
 	return c.JSON(200, l)
 }
+
+func LyricDeleteHandler(c echo.Context) error {
+	user := GetUser(c)
+
+	id := c.Param("id")
+	l := models.Lyric{}
+	l.Delete(id, user)
+	return c.JSON(204, "")
+}

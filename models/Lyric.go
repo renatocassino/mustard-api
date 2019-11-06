@@ -65,6 +65,13 @@ func (l *Lyric) Update(id string, user User) {
 	}, &l)
 }
 
+func (l *Lyric) Delete(id string, user User) {
+	getLyricCollection().Remove(bson.M{
+		"userId": user.ID,
+		"_id":    id,
+	})
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (l *Lyric) Validate(tx *pop.Connection) (*validate.Errors, error) {
