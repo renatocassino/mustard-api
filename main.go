@@ -17,7 +17,8 @@ func main() {
 	e.GET("/auth", actions.AuthHandler)
 	e.GET("/auth/callback", actions.AuthCallbackHandler)
 	e.GET("/api/v1/lyrics", actions.LyricListHandler, authMiddleware)
-
+	e.POST("/api/v1/lyrics", actions.LyricCreateHandler, authMiddleware)
+	e.PUT("/api/v1/lyrics/:id", actions.LyricUpdateHandler, authMiddleware)
 	e.Logger.Fatal(e.Start(":8000"))
 
 	// m := martini.Classic()

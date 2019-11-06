@@ -2,12 +2,14 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
+	"github.com/tacnoman/mustard-api/core"
 	"github.com/tacnoman/mustard-api/storage"
 )
 
@@ -39,13 +41,28 @@ func (l Lyric) GetLyrics(user User) []Lyric {
 	return lyrics
 }
 
-// Lyrics is not required by pop and may be deleted
-type Lyrics []Lyric
+func (l *Lyric) Create(user User) {
+	l.ID = core.GenUUIDv4()
+	l.CreatedAt = time.Now()
+	l.UpdatedAt = time.Now()
+	l.UserID = user.ID
 
-// String is not required by pop and may be deleted
-func (l Lyrics) String() string {
-	jl, _ := json.Marshal(l)
-	return string(jl)
+	err := getLyricCollection().Insert(&l)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func (l *Lyric) Update(id string, user User) {
+	l.UpdatedAt = time.Now()
+	l.ID = id
+	l.UserID = user.ID
+
+	getLyricCollection().Update(bson.M{
+		"userId": user.ID,
+		"_id":    id,
+	}, &l)
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
