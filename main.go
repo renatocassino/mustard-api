@@ -1,34 +1,11 @@
 package main
 
 import (
-	"strings"
-
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/tacnoman/mustard-api/actions"
 	"github.com/tacnoman/mustard-api/core"
-	"github.com/tacnoman/mustard-api/models"
 )
-
-func isAuthorized(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		request := c.Request()
-		authorization := request.Header.Get("Authorization")
-		if !strings.HasPrefix(authorization, "Bearer ") {
-			return echo.ErrUnauthorized
-		}
-
-		tokenstring := strings.Replace(authorization, "Bearer ", "", 1)
-		user, err := models.User{}.LoggedUser(tokenstring)
-		if err != nil {
-			return echo.ErrUnauthorized
-		}
-
-		c.Set("user", user)
-
-		return next(c)
-	}
-}
 
 func main() {
 	authMiddleware := middleware.JWTWithConfig(middleware.JWTConfig{
