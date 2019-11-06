@@ -2,7 +2,7 @@ package models
 
 import (
 	"encoding/json"
-	"net/http"
+	"fmt"
 	"strings"
 	"time"
 
@@ -81,13 +81,17 @@ func (u *User) InsertOrUpdate(auth *dtos.GoogleAuthDTO) {
 	getUserCollection().Insert(&u)
 }
 
-func (u User) LoggedUser(r *http.Request) User {
-	tokenstring := strings.Replace(r.Header.Get("Authorization"), "Bearer ", "", 1)
+func (u User) LoggedUser(authorization string) (*User, error) {
+	tokenstring := strings.Replace(authorization, "Bearer ", "", 1)
 
 	user := User{}
-	jwt.ParseWithClaims(tokenstring, &user, func(token *jwt.Token) (interface{}, error) {
-		return []byte("secret"), nil
+	_, err := jwt.ParseWithClaims(tokenstring, &user, func(token *jwt.Token) (interface{}, error) {
+		return []byte(core.GetEnv("JWT_TOKEN", "secret")), nil
 	})
 
-	return user
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	return &user, nil
 }

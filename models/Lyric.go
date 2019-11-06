@@ -10,13 +10,12 @@ import (
 )
 
 type Lyric struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	Title     string    `json:"title" db:"title"`
-	Lyric     string    `json:"lyric" db:"lyric"`
-	UserID    uuid.UUID `json:"userId" db:"user_id"`
-	User      *User     `json:"user,omitempty" belongs_to:"user"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	ID        uuid.UUID `json:"id" bson:"_id"`
+	Title     string    `json:"title"`
+	Lyric     string    `json:"lyric"`
+	UserID    uuid.UUID `json:"userId" bson:"userId"`
+	CreatedAt time.Time `json:"created_at" bson:"createdAt"`
+	UpdatedAt time.Time `json:"updated_at" bson:"updatedAt"`
 }
 
 // String is not required by pop and may be deleted
