@@ -41,5 +41,9 @@ func main() {
 	e.POST("/api/v1/lyrics", actions.LyricCreateHandler, isAuthorized)
 	e.PUT("/api/v1/lyrics/:id", actions.LyricUpdateHandler, isAuthorized)
 	e.DELETE("/api/v1/lyrics/:id", actions.LyricDeleteHandler, isAuthorized)
+
+	e.OPTIONS("/api/v1/lyrics", actions.OptionsHandler)
+	e.OPTIONS("/api/v1/lyrics/:id", actions.OptionsHandler)
+
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", core.GetEnv("PORT", "8000"))))
 }

@@ -33,7 +33,7 @@ func getLyricCollection() *mgo.Collection {
 func (l Lyric) GetLyrics(user User) []Lyric {
 	collection := getLyricCollection()
 
-	lyrics := []Lyric{}
+	var lyrics []Lyric
 	collection.Find(bson.M{"userId": user.ID}).All(&lyrics)
 
 	return lyrics
