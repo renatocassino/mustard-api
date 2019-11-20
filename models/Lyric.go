@@ -16,8 +16,8 @@ type Lyric struct {
 	Title     string    `json:"title"`
 	Lyric     string    `json:"lyric"`
 	UserID    string    `json:"userId" bson:"userId"`
-	CreatedAt time.Time `json:"created_at" bson:"createdAt"`
-	UpdatedAt time.Time `json:"updated_at" bson:"updatedAt"`
+	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt" bson:"updatedAt"`
 }
 
 // String is not required by pop and may be deleted

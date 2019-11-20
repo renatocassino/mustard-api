@@ -42,6 +42,7 @@ func main() {
 	e.PUT("/api/v1/lyrics/:id", actions.LyricUpdateHandler, isAuthorized)
 	e.DELETE("/api/v1/lyrics/:id", actions.LyricDeleteHandler, isAuthorized)
 
+	e.OPTIONS("/api/v1/rhymes/:language/:word", actions.OptionsHandler)
 	e.OPTIONS("/api/v1/lyrics", actions.OptionsHandler)
 	e.OPTIONS("/api/v1/lyrics/:id", actions.OptionsHandler)
 
