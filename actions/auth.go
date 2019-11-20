@@ -70,5 +70,5 @@ func AuthCallbackHandler(c echo.Context) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, user)
 	tokenString, _ := token.SignedString([]byte(mySigningKey))
 
-	return c.Redirect(302, fmt.Sprintf("%s/#%s", core.GetEnv("API_URL", "http://localhost:8000"), tokenString))
+	return c.Redirect(302, fmt.Sprintf("%s/#%s", core.GetEnv("URL_FE", "http://localhost:3000"), tokenString))
 }
