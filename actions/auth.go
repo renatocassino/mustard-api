@@ -17,7 +17,7 @@ import (
 
 var (
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "http://localhost:8000/auth/callback",
+		RedirectURL:  fmt.Sprintf("%s/auth/callback", core.GetEnv("API_URL", "http://localhost:8000")),
 		ClientID:     "831276509280-m7ckgviuile76hutdgqibe7g9ll2hhh6.apps.googleusercontent.com",
 		ClientSecret: "OT4qa5gyAHDPX-nXF3IQ307A",
 		Scopes: []string{
