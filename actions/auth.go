@@ -41,12 +41,11 @@ func AuthHandler(c echo.Context) error {
 func AuthCallbackHandler(c echo.Context) error {
 	accessToken, err := googleOauthConfig.Exchange(oauth2.NoContext, c.QueryParam("code"))
 	if err != nil {
-		fmt.Println("Caanot get access token")
+		fmt.Println("Cannot get access token")
 		fmt.Println(err.Error())
 		return c.JSON(500, err)
 	}
 
-	fmt.Println(accessToken)
 	resp, err := http.Get(fmt.Sprintf("https://www.googleapis.com/oauth2/v1/userinfo?access_token=%s", accessToken.AccessToken))
 	if err != nil {
 		fmt.Println(err.Error())
@@ -64,11 +63,21 @@ func AuthCallbackHandler(c echo.Context) error {
 	json.Unmarshal(content, &authDTO)
 
 	user := models.User{}
-	user.InsertOrUpdate(&authDTO)
+	err = user.InsertOrUpdate(&authDTO)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.JSON(500, err)
+	}
 
 	mySigningKey := core.GetEnv("JWT_TOKEN", "secret")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, user)
-	tokenString, _ := token.SignedString([]byte(mySigningKey))
+	tokenString, err := token.SignedString([]byte(mySigningKey))
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return c.JSON(500, err)
+	}
 
 	return c.Redirect(302, fmt.Sprintf("%s/#%s", core.GetEnv("URL_FE", "http://localhost:3000"), tokenString))
 }

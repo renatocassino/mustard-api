@@ -67,18 +67,20 @@ func (u User) FindByGoogleID(id string) *User {
 	return &u
 }
 
-func (u *User) InsertOrUpdate(auth *dtos.GoogleAuthDTO) {
+func (u *User) InsertOrUpdate(auth *dtos.GoogleAuthDTO) error {
 	existUser := User{}.FindByGoogleID(auth.ID)
 	u.SetDataByGoogleDTO(auth)
 
 	if existUser.ID != "" {
 		u.ID = existUser.ID
-		getUserCollection().Update(bson.M{"googleID": u.GoogleID}, u)
-		return
+		err := getUserCollection().Update(bson.M{"googleID": u.GoogleID}, u)
+		return err
 	}
 
 	u.ID = core.GenUUIDv4()
-	getUserCollection().Insert(&u)
+	err := getUserCollection().Insert(&u)
+
+	return err
 }
 
 func (u User) LoggedUser(authorization string) (*User, error) {
